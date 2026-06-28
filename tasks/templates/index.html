@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Habit Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface2: #22263a;
+            --accent: #6c63ff;
+            --accent2: #a78bfa;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #f1f5f9;
+            --muted: #64748b;
+            --border: #2e3347;
+            --radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── AUTH ── */
+        #auth-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at 60% 30%, #1e1b4b 0%, var(--bg) 65%);
+        }
+
+        .auth-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-logo {
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: .25rem;
+        }
+
+        .auth-sub {
+            color: var(--muted);
+            font-size: .9rem;
+            margin-bottom: 2rem;
+        }
+
+        .field-label {
+            font-size: .8rem;
+            color: var(--muted);
+            margin-bottom: .35rem;
+            font-weight: 600;
+            letter-spacing: .04em;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            padding: .7rem 1rem;
+            font-family: 'Cairo', sans-serif;
+            font-size: .95rem;
+            outline: none;
+            transition: border-color .2s;
+            margin-bottom: 1rem;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent);
+        }
+
+        .form-input::placeholder {
+            color: var(--muted);
+        }
+
+        .btn-primary-custom {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: .75rem;
+            cursor: pointer;
+            transition: opacity .2s, transform .1s;
+        }
+
+        .btn-primary-custom:hover {
+            opacity: .9;
+        }
+
+        .btn-primary-custom:active {
+            transform: scale(.98);
+        }
+
+        .btn-primary-custom:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        .auth-toggle {
+            text-align: center;
+            margin-top: 1.2rem;
+            font-size: .85rem;
+            color: var(--muted);
+        }
+
+        .auth-toggle span {
+            color: var(--accent2);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .auth-toggle span:hover {
+            text-decoration: underline;
+        }
+
+        .error-msg {
+            background: rgba(239, 68, 68, .12);
+            border: 1px solid rgba(239, 68, 68, .3);
+            border-radius: 8px;
+            color: #fca5a5;
+            padding: .6rem .9rem;
+            font-size: .85rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        /* ── APP ── */
+        #app-screen {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-brand {
+            font-weight: 900;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            color: var(--muted);
+            font-size: .85rem;
+        }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: .85rem;
+            color: #fff;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--muted);
+            font-family: 'Cairo', sans-serif;
+            font-size: .8rem;
+            padding: .35rem .8rem;
+            cursor: pointer;
+            transition: border-color .2s, color .2s;
+        }
+
+        .btn-logout:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .main {
+            padding: 2rem 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* ── STATS ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.2rem 1rem;
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: .78rem;
+            margin-top: .3rem;
+        }
+
+        /* ── ADD HABIT ── */
+        .add-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: .75rem;
+            align-items: center;
+        }
+
+        .add-input {
+            flex: 1;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            padding: .65rem 1rem;
+            font-family: 'Cairo', sans-serif;
+            font-size: .95rem;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .add-input:focus {
+            border-color: var(--accent);
+        }
+
+        .add-input::placeholder {
+            color: var(--muted);
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            padding: .65rem 1.4rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity .2s;
+        }
+
+        .btn-add:hover {
+            opacity: .9;
+        }
+
+        /* ── SECTION TITLE ── */
+        .section-title {
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 1rem;
+        }
+
+        /* ── CHART ── */
+        .chart-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .chart-title {
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 1rem;
+            font-size: .75rem;
+            color: var(--muted);
+        }
+
+        .legend-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-left: .35rem;
+        }
+
+        .chart-empty {
+            text-align: center;
+            padding: 2rem;
+            color: var(--muted);
+            font-size: .85rem;
+        }
+
+        /* ── HABIT CARDS ── */
+        .habits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+
+        .habit-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            transition: border-color .2s, transform .15s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .habit-card:hover {
+            border-color: #3e4260;
+            transform: translateY(-2px);
+        }
+
+        .habit-card.done-today {
+            border-color: rgba(34, 197, 94, .35);
+        }
+
+        .habit-card.done-today::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--success);
+            border-radius: 0 var(--radius) var(--radius) 0;
+        }
+
+        .habit-name {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: .5rem;
+            color: var(--text);
+        }
+
+        .habit-streak {
+            font-size: .8rem;
+            color: var(--muted);
+            margin-bottom: 1rem;
+        }
+
+        .streak-fire {
+            color: var(--warning);
+            margin-left: .25rem;
+        }
+
+        .habit-actions {
+            display: flex;
+            gap: .5rem;
+        }
+
+        .btn-complete {
+            flex: 1;
+            padding: .55rem;
+            border-radius: 9px;
+            border: none;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: .85rem;
+            cursor: pointer;
+            transition: opacity .2s, transform .1s;
+        }
+
+        .btn-complete:active {
+            transform: scale(.97);
+        }
+
+        .btn-complete.ready {
+            background: rgba(108, 99, 255, .15);
+            color: var(--accent2);
+            border: 1px solid rgba(108, 99, 255, .3);
+        }
+
+        .btn-complete.ready:hover {
+            background: rgba(108, 99, 255, .25);
+        }
+
+        .btn-complete.done {
+            background: rgba(34, 197, 94, .1);
+            color: var(--success);
+            border: 1px solid rgba(34, 197, 94, .25);
+            cursor: default;
+        }
+
+        .btn-delete {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            color: var(--muted);
+            padding: .55rem .75rem;
+            cursor: pointer;
+            font-size: .85rem;
+            transition: border-color .2s, color .2s;
+        }
+
+        .btn-delete:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: var(--muted);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: .4;
+        }
+
+        .empty-state p {
+            font-size: .95rem;
+        }
+
+        /* ── TOAST ── */
+        #toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: .75rem 1.5rem;
+            font-size: .9rem;
+            font-family: 'Cairo', sans-serif;
+            color: var(--text);
+            z-index: 999;
+            transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        #toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #toast.success {
+            border-color: rgba(34, 197, 94, .4);
+            color: var(--success);
+        }
+
+        #toast.error {
+            border-color: rgba(239, 68, 68, .4);
+            color: #fca5a5;
+        }
+
+        #toast.warning {
+            border-color: rgba(245, 158, 11, .4);
+            color: var(--warning);
+        }
+
+        /* ── LOADING ── */
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, .2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .6s linear infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .stats-row {
+                grid-template-columns: repeat(3, 1fr);
+                gap: .5rem;
+            }
+
+            .stat-num {
+                font-size: 1.5rem;
+            }
+
+            .add-section {
+                flex-direction: column;
+            }
+
+            .btn-add {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── AUTH ── -->
+    <div id="auth-screen">
+        <div class="auth-card">
+            <div class="auth-logo">Habity</div>
+            <div class="auth-sub" id="auth-sub">سجّل دخولك وابدأ يومك</div>
+            <div class="error-msg" id="auth-error"></div>
+
+            <div id="login-fields">
+                <div class="field-label">اسم المستخدم</div>
+                <input class="form-input" id="login-username" type="text" placeholder="username" />
+                <div class="field-label">كلمة السر</div>
+                <input class="form-input" id="login-password" type="password" placeholder="••••••••" />
+                <button class="btn-primary-custom" id="login-btn" onclick="doLogin()">دخول</button>
+                <div class="auth-toggle">مش عندك حساب؟ <span onclick="switchToRegister()">سجّل دلوقتي</span></div>
+            </div>
+
+            <div id="register-fields" style="display:none">
+                <div class="field-label">اسم المستخدم</div>
+                <input class="form-input" id="reg-username" type="text" placeholder="username" />
+                <div class="field-label">البريد الإلكتروني</div>
+                <input class="form-input" id="reg-email" type="email" placeholder="email@example.com" />
+                <div class="field-label">كلمة السر</div>
+                <input class="form-input" id="reg-password" type="password" placeholder="••••••••" />
+                <div class="field-label">تأكيد كلمة السر</div>
+                <input class="form-input" id="reg-password2" type="password" placeholder="••••••••" />
+                <button class="btn-primary-custom" id="register-btn" onclick="doRegister()">إنشاء حساب</button>
+                <div class="auth-toggle">عندك حساب؟ <span onclick="switchToLogin()">سجّل دخول</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── APP ── -->
+    <div id="app-screen">
+        <div class="topbar">
+            <div class="topbar-brand">Habity</div>
+            <div class="topbar-user">
+                <div class="avatar" id="avatar-letter">A</div>
+                <span id="topbar-username"></span>
+                <button class="btn-logout" onclick="doLogout()">خروج</button>
+            </div>
+        </div>
+
+        <div class="main">
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-num" id="stat-total">0</div>
+                    <div class="stat-label">إجمالي العادات</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-num" id="stat-done">0</div>
+                    <div class="stat-label">أُنجز اليوم</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-num" id="stat-total-completions">0</div>
+                    <div class="stat-label">إجمالي الإنجازات</div>
+                </div>
+            </div>
+
+            <!-- Add -->
+            <div class="add-section">
+                <input class="add-input" id="new-habit" type="text" placeholder="اسم العادة الجديدة..."
+                    onkeydown="if(event.key==='Enter') doAddHabit()" />
+                <button class="btn-add" onclick="doAddHabit()">+ إضافة</button>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-section" id="chart-section" style="display:none">
+                <div class="chart-header">
+                    <div class="chart-title">إنجازاتك مقارنةً ببعض</div>
+                    <div class="chart-legend">
+                        <span><span class="legend-dot" style="background:#6c63ff"></span>الأكثر</span>
+                        <span><span class="legend-dot" style="background:#a78bfa"></span>الثاني</span>
+                        <span><span class="legend-dot" style="background:#2e3347"></span>الباقي</span>
+                    </div>
+                </div>
+                <canvas id="habitsChart" height="90"></canvas>
+            </div>
+
+            <!-- List -->
+            <div class="section-title">عاداتك</div>
+            <div id="habits-grid" class="habits-grid"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast"></div>
+
+    <script>
+        const API = '';
+
+        let accessToken = localStorage.getItem('access') || '';
+        let refreshToken = localStorage.getItem('refresh') || '';
+        let currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+        let habits = [];
+        let myChart = null;
+
+        window.onload = () => {
+            if (accessToken && currentUser) showApp();
+            else showAuth();
+        };
+
+        function showAuth() {
+            document.getElementById('auth-screen').style.display = 'flex';
+            document.getElementById('app-screen').style.display = 'none';
+        }
+        function showApp() {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'block';
+            initApp();
+        }
+
+        function switchToRegister() {
+            document.getElementById('login-fields').style.display = 'none';
+            document.getElementById('register-fields').style.display = 'block';
+            document.getElementById('auth-sub').textContent = 'أنشئ حسابك الآن';
+            clearAuthError();
+        }
+        function switchToLogin() {
+            document.getElementById('register-fields').style.display = 'none';
+            document.getElementById('login-fields').style.display = 'block';
+            document.getElementById('auth-sub').textContent = 'سجّل دخولك وابدأ يومك';
+            clearAuthError();
+        }
+
+        function showAuthError(msg) {
+            const el = document.getElementById('auth-error');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+        function clearAuthError() { document.getElementById('auth-error').style.display = 'none'; }
+
+        async function doLogin() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            if (!username || !password) { showAuthError('اكتب اسم المستخدم وكلمة السر'); return; }
+
+            const btn = document.getElementById('login-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>';
+
+            try {
+                const res = await fetch(`${API}/api/auth/login/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password }),
+                });
+                const data = await res.json();
+                if (!res.ok) { showAuthError(data.error || 'بيانات الدخول غلط'); return; }
+                saveSession(data);
+                showApp();
+            } catch (e) {
+                showAuthError('مشكلة في الاتصال، جرب تاني');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'دخول';
+            }
+        }
+
+        async function doRegister() {
+            const username = document.getElementById('reg-username').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const password2 = document.getElementById('reg-password2').value;
+
+            if (!username || !password) { showAuthError('اكتب اسم المستخدم وكلمة السر'); return; }
+            if (password !== password2) { showAuthError('كلمتا السر مش متطابقتين'); return; }
+
+            const btn = document.getElementById('register-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>';
+
+            try {
+                const res = await fetch(`${API}/api/auth/register/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password, password2 }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    const msgs = Object.values(data).flat().join(' • ');
+                    showAuthError(msgs || 'حصل خطأ، جرب تاني');
+                    return;
+                }
+                saveSession(data);
+                showApp();
+            } catch (e) {
+                showAuthError('مشكلة في الاتصال، جرب تاني');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'إنشاء حساب';
+            }
+        }
+
+        async function doLogout() {
+            try {
+                await authFetch(`${API}/api/auth/logout/`, {
+                    method: 'POST',
+                    body: JSON.stringify({ refresh: refreshToken }),
+                });
+            } catch (_) { }
+            clearSession();
+            showAuth();
+        }
+
+        function saveSession(data) {
+            accessToken = data.tokens?.access || data.access || '';
+            refreshToken = data.tokens?.refresh || data.refresh || '';
+            currentUser = data.user || null;
+            localStorage.setItem('access', accessToken);
+            localStorage.setItem('refresh', refreshToken);
+            localStorage.setItem('user', JSON.stringify(currentUser));
+        }
+        function clearSession() {
+            accessToken = refreshToken = '';
+            currentUser = null;
+            localStorage.removeItem('access');
+            localStorage.removeItem('refresh');
+            localStorage.removeItem('user');
+        }
+
+        async function authFetch(url, options = {}) {
+            options.headers = {
+                ...(options.headers || {}),
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            };
+            let res = await fetch(url, options);
+
+            if (res.status === 401 && refreshToken) {
+                const r = await fetch(`${API}/api/auth/refresh/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refresh: refreshToken }),
+                });
+                if (r.ok) {
+                    const d = await r.json();
+                    accessToken = d.access;
+                    localStorage.setItem('access', accessToken);
+                    options.headers['Authorization'] = `Bearer ${accessToken}`;
+                    res = await fetch(url, options);
+                } else {
+                    clearSession(); showAuth(); return null;
+                }
+            }
+            return res;
+        }
+
+        function initApp() {
+            if (currentUser) {
+                const letter = (currentUser.username || 'U')[0].toUpperCase();
+                document.getElementById('avatar-letter').textContent = letter;
+                document.getElementById('topbar-username').textContent = currentUser.username;
+            }
+            loadHabits();
+            setInterval(loadHabits, 60000);
+        }
+
+        async function loadHabits() {
+            try {
+                const res = await authFetch(`${API}/api/tasks/`);
+                if (!res) return;
+                const data = await res.json();
+                habits = Array.isArray(data) ? data : (data.results || []);
+                renderHabits();
+                renderStats();
+                renderChart();
+            } catch (e) { console.error(e); }
+        }
+
+        function renderHabits() {
+            const grid = document.getElementById('habits-grid');
+            if (habits.length === 0) {
+                grid.innerHTML = `
+                <div class="empty-state" style="grid-column:1/-1">
+                    <div class="empty-icon">✦</div>
+                    <p>ابدأ بإضافة أول عادة ليك</p>
+                </div>`;
+                return;
+            }
+
+            grid.innerHTML = habits.map(h => {
+                const doneToday = isDoneToday(h.last_completed);
+                return `
+                <div class="habit-card ${doneToday ? 'done-today' : ''}" id="card-${h.id}">
+                    <div class="habit-name">${escHtml(h.title)}</div>
+                    <div class="habit-streak">
+                        إجمالي الإنجازات: <strong>${h.completed_count || 0}</strong>
+                        <span class="streak-fire">${getFireEmoji(h.completed_count)}</span>
+                    </div>
+                    <div class="habit-actions">
+                        <button class="btn-complete ${doneToday ? 'done' : 'ready'}"
+                            ${doneToday ? 'disabled' : `onclick="doComplete(${h.id})"`}>
+                            ${doneToday ? '✅ أُنجز اليوم' : '☐ أنجز الآن'}
+                        </button>
+                        <button class="btn-delete" onclick="doDelete(${h.id}, '${escHtml(h.title)}')">🗑</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderStats() {
+            const total = habits.length;
+            const doneToday = habits.filter(h => isDoneToday(h.last_completed)).length;
+            const totalCount = habits.reduce((s, h) => s + (h.completed_count || 0), 0);
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-done').textContent = doneToday;
+            document.getElementById('stat-total-completions').textContent = totalCount;
+        }
+
+        function renderChart() {
+            const section = document.getElementById('chart-section');
+
+            // لو مفيش عادات أو كلهم عندهم 0 → خبّي الـ chart
+            const hasData = habits.some(h => (h.completed_count || 0) > 0);
+            if (!hasData) { section.style.display = 'none'; return; }
+            section.style.display = 'block';
+
+            // رتّب تنازلياً
+            const sorted = [...habits]
+                .sort((a, b) => (b.completed_count || 0) - (a.completed_count || 0));
+
+            const labels = sorted.map(h => h.title);
+            const data = sorted.map(h => h.completed_count || 0);
+
+            // لون كل bar حسب الترتيب
+            const colors = sorted.map((_, i) => {
+                if (i === 0) return '#6c63ff';   // الأكثر — بنفسجي غامق
+                if (i === 1) return '#a78bfa';   // الثاني — بنفسجي فاتح
+                if (i === 2) return '#7c3aed';   // الثالث — بنفسجي وسط
+                return '#2e3347';                // الباقي — رمادي
+            });
+
+            const ctx = document.getElementById('habitsChart').getContext('2d');
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        data,
+                        backgroundColor: colors,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: items => items[0].label,
+                                label: ctx => ` ${ctx.parsed.y} مرة`,
+                            },
+                            backgroundColor: '#1a1d27',
+                            borderColor: '#2e3347',
+                            borderWidth: 1,
+                            titleColor: '#f1f5f9',
+                            bodyColor: '#a78bfa',
+                            titleFont: { family: 'Cairo', weight: '700' },
+                            bodyFont: { family: 'Cairo' },
+                            padding: 10,
+                        },
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#64748b', font: { family: 'Cairo', size: 12 } },
+                            grid: { color: '#1e2133' },
+                        },
+                        y: {
+                            ticks: {
+                                color: '#64748b',
+                                font: { family: 'Cairo' },
+                                stepSize: 1,
+                                callback: val => Number.isInteger(val) ? val : '',
+                            },
+                            grid: { color: '#1e2133' },
+                            beginAtZero: true,
+                        },
+                    },
+                    animation: { duration: 400, easing: 'easeOutQuart' },
+                }
+            });
+        }
+
+        async function doAddHabit() {
+            const input = document.getElementById('new-habit');
+            const title = input.value.trim();
+            if (!title) return;
+
+            try {
+                const res = await authFetch(`${API}/api/tasks/`, {
+                    method: 'POST',
+                    body: JSON.stringify({ title }),
+                });
+                if (!res) return;
+                if (res.ok) {
+                    input.value = '';
+                    showToast('تمت الإضافة ✓', 'success');
+                    loadHabits();
+                } else {
+                    const d = await res.json();
+                    showToast(Object.values(d).flat()[0] || 'حصل خطأ', 'error');
+                }
+            } catch (e) { showToast('مشكلة في الاتصال', 'error'); }
+        }
+
+        async function doComplete(id) {
+            const btn = document.querySelector(`#card-${id} .btn-complete`);
+            if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
+
+            try {
+                const res = await authFetch(`${API}/api/tasks/${id}/complete/`, { method: 'POST' });
+                if (!res) return;
+
+                if (res.status === 400) {
+                    const d = await res.json();
+                    showToast(d.error || 'انتظر 24 ساعة ⏳', 'warning');
+                    if (btn) { btn.disabled = false; btn.innerHTML = '☐ أنجز الآن'; }
+                    return;
+                }
+
+                showToast('أحسنت! عادة مُنجزة 🎉', 'success');
+                loadHabits();
+            } catch (e) {
+                showToast('مشكلة في الاتصال', 'error');
+                if (btn) { btn.disabled = false; btn.innerHTML = '☐ أنجز الآن'; }
+            }
+        }
+
+        async function doDelete(id, name) {
+            if (!confirm(`هتحذف "${name}"؟`)) return;
+            try {
+                const res = await authFetch(`${API}/api/tasks/${id}/`, { method: 'DELETE' });
+                if (!res) return;
+                if (res.ok || res.status === 204) {
+                    showToast('تم الحذف', 'error');
+                    loadHabits();
+                }
+            } catch (e) { showToast('مشكلة في الاتصال', 'error'); }
+        }
+
+        function isDoneToday(last_completed) {
+            if (!last_completed) return false;
+            const last = new Date(last_completed);
+            const now = new Date();
+            return last.getFullYear() === now.getFullYear() &&
+                last.getMonth() === now.getMonth() &&
+                last.getDate() === now.getDate();
+        }
+
+        function getFireEmoji(count) {
+            if (!count || count < 5) return '';
+            if (count < 10) return '🔥';
+            if (count < 25) return '🔥🔥';
+            return '🔥🔥🔥';
+        }
+
+        function escHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        let toastTimer;
+        function showToast(msg, type = '') {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.className = `show ${type}`;
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { el.className = ''; }, 2800);
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                if (document.getElementById('login-fields').style.display !== 'none') doLogin();
+                else if (document.getElementById('register-fields').style.display !== 'none') doRegister();
+            }
+        });
+    </script>
+</body>
+
+</html>
