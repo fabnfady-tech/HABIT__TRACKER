@@ -10,18 +10,6 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ['id', 'name', 'color'] 
 
-class TaskSerializer(serializers.ModelSerializer):
-    category_name = serializers.ReadOnlyField(source='category.name')
-
-    class Meta:
-        model = Task
-        fields = [
-            'id', 'title', 'description', 'status', 'priority', 
-            'due_date', 'created_at', 'updated_at', 'category', 'category_name','completed_count','last_completed'
-        ]
-        read_only_fields = ['created_at', 'updated_at']
-
-
 class RegisterSerializer(serializers.ModelSerializer):
     password  = serializers.CharField(write_only=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True)
@@ -51,10 +39,11 @@ class UserSerializer(serializers.ModelSerializer):
         model  = User
         fields = ('id', 'username', 'email')
 class TaskSerializer(serializers.ModelSerializer):
+    category_name = serializers.ReadOnlyField(source='category.name')
     class Meta:
         model = Task
         fields = '__all__'
-        read_only_fields = ('user',) # اليوزر مش هيكتبه، السيستم اللي بيحدده
+        read_only_fields = ('user','created_at','updated_at') # اليوزر مش هيكتبه، السيستم اللي بيحدده
 
     def create(self, validated_data):
         # بنربط المهمة باليوزر اللي عمل الطلب فوراً
