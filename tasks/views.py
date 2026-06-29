@@ -119,8 +119,8 @@ class TaskViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def complete(self, request, pk=None):
         task = self.get_object()
-        if task.last_completed and (timezone.now() - task.last_completed) < timedelta(hours=24):
-            return Response({'error': 'انتظر 24 ساعة'}, status=status.HTTP_400_BAD_REQUEST)
+        if task.last_completed and (timezone.now() - task.last_completed) < timedelta(hours=14):
+            return Response({'error': 'انتظر '}, status=status.HTTP_400_BAD_REQUEST)
         task.last_completed   = timezone.now()
         task.completed_count += 1
         task.save()

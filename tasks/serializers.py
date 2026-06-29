@@ -1,10 +1,7 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-# ضيف السطر ده فوق مع باقي الـ imports في أول الملف
 from .models import Task, Category
-
-# وضيف الكود ده تحت خالص بعد السطر 23
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -43,9 +40,8 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = '__all__'
-        read_only_fields = ('user','created_at','updated_at') # اليوزر مش هيكتبه، السيستم اللي بيحدده
+        read_only_fields = ('user','created_at','updated_at') 
 
     def create(self, validated_data):
-        # بنربط المهمة باليوزر اللي عمل الطلب فوراً
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
