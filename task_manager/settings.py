@@ -80,8 +80,12 @@ WSGI_APPLICATION = "task_manager.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "habit_tracker",       
+        "USER": "postgres",           
+        "PASSWORD": "fady@2026db",         
+        "HOST": "localhost",      
+        "PORT": "5432",                    
     }
 }
 
@@ -143,8 +147,8 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '20/hour',    # زوار غير مسجلين
-        'user': '1000/day',   # يوزرز مسجلين
+        'anon': '20/hour',    
+        'user': '1000/day',   
     },
 }
 from datetime import timedelta
